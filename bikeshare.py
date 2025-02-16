@@ -17,8 +17,42 @@ def get_filters():
     """
     print('Hello! Let\'s explore some US bikeshare data!')
     # get user input for city (chicago, new york city, washington). HINT: Use a while loop to handle invalid inputs
-
-
+    user_input = ""
+    valid_answers = ["chicago","new york city","washington"]
+    common_alternatives = {
+        "chitown" : "chicago",
+        "new york" : "new york city",
+        "nyc" : "new york city",
+        "dc" : "washington",
+        "washington d.c." : "washington",
+        "washington dc" : "washington"
+        "chigaco": "chicago",
+        "chcago": "chicago",
+        "chigago": "chicago",
+        "chciago": "chicago",
+        "new yrok city": "new york city",
+        "new yourk city": "new York City",
+        "new yor city": "new York City",
+        "washinton": "washington",
+        "washingotn": "washington",
+        "washngton": "washington",
+        "wahsington": "washington"
+    }
+    while not check_valid_input(user_input, valid_answers):
+        #check if user input is one of the cities for which we have data
+        if user_input in valid_answers:
+            return True
+        #check if user input is one of the common alternative or misspelled names
+        if user_input.lower() in common_alternatives:
+            corrected_input = common_alternatives[user_input.lower()]
+            print(f"We assume you mean {corrected_input}.title(), right?")
+            return True
+        return False
+        if not check_valid_input(user_input, valid_answers):
+            print("Please input either Chicago, New York City, or Washington")
+        else:
+            print(f"{user_input}.title()")
+    user_input = input("Which city's data would you like to explore (Chicago, New York City, or Washington))").lower().strip()
     # get user input for month (all, january, february, ... , june)
 
 
@@ -26,7 +60,8 @@ def get_filters():
 
 
     print('-'*40)
-    return city, month, day
+ #   return city, month, day
+    return city
 
 
 def load_data(city, month, day):
