@@ -6,6 +6,16 @@ CITY_DATA = { 'chicago': 'data/chicago.csv',
               'new york city': 'data/new_york_city.csv',
               'washington': 'data/washington.csv' }
 
+def check_valid_input(user_input, valid_answers, common_alternatives):
+    if user_input.lower() in valid_answers:
+        return True, user_input
+    #check if user input is one of the common alternative or misspelled names
+    if user_input.lower() in common_alternatives:
+        corrected_input = common_alternatives[user_input.lower()]
+        print(f"We assume you mean {corrected_input}")
+        return True, corrected_input
+    return False, user_input
+
 def get_filters():
     """
     Asks user to specify a city, month, and day to analyze.
@@ -17,7 +27,9 @@ def get_filters():
     """
     print('Hello! Let\'s explore some US bikeshare data!')
     # get user input for city (chicago, new york city, washington). HINT: Use a while loop to handle invalid inputs
-    user_input = ""
+    
+    user_input = "" #initialize variables
+    city = ""
     valid_answers = ["chicago","new york city","washington"]
     common_alternatives = {
         "chitown": "chicago",
@@ -38,21 +50,15 @@ def get_filters():
         "washngton": "washington",
         "wahsington": "washington"
     }
-    while not check_valid_input(user_input, valid_answers):
-        #check if user input is one of the cities for which we have data
-        if user_input in valid_answers:
-            return True
-        #check if user input is one of the common alternative or misspelled names
-        if user_input.lower() in common_alternatives:
-            corrected_input = common_alternatives[user_input.lower()]
-            print(f"We assume you mean {corrected_input}.title(), right?")
-            return True
-        return False
-        if not check_valid_input(user_input, valid_answers):
-            print("Please input either Chicago, New York City, or Washington")
+    is_valid = False
+    while not is_valid:
+        #have the user input is one of the cities for which we have data
+        user_input = input("Which city's data would you like to explore (Chicago, New York City, or Washington))").lower().strip()
+        is_valid, corrected_input = check_valid_input(user_input, valid_answers, common_alternatives)
+        if not is_valid:
+            print("Please input the name one of these cities (Chicago, New York City, or Washington).")
         else:
-            print(f"{user_input}.title()")
-    user_input = input("Which city's data would you like to explore (Chicago, New York City, or Washington))").lower().strip()
+            print("Thank you!")
     # get user input for month (all, january, february, ... , june)
 
 
@@ -155,13 +161,13 @@ def user_stats(df):
 
 def main():
     while True:
-        city, month, day = get_filters()
-        df = load_data(city, month, day)
-
-        time_stats(df)
-        station_stats(df)
-        trip_duration_stats(df)
-        user_stats(df)
+#        city, month, day = get_filters()
+        city = get_filters() #tmp
+#        df = load_data(city, month, day)
+        #time_stats(df)
+        #station_stats(df)
+        #trip_duration_stats(df)
+        #user_stats(df)
 
         restart = input('\nWould you like to restart? Enter yes or no.\n')
         if restart.lower() != 'yes':
