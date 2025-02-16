@@ -20,12 +20,12 @@ def get_filters():
     user_input = ""
     valid_answers = ["chicago","new york city","washington"]
     common_alternatives = {
-        "chitown" : "chicago",
-        "new york" : "new york city",
-        "nyc" : "new york city",
-        "dc" : "washington",
-        "washington d.c." : "washington",
-        "washington dc" : "washington"
+        "chitown": "chicago",
+        "new york": "new york city",
+        "nyc": "new york city",
+        "dc": "washington",
+        "washington d.c.": "washington",
+        "washington dc": "washington",
         "chigaco": "chicago",
         "chcago": "chicago",
         "chigago": "chicago",
