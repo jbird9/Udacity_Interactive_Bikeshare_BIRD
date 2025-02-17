@@ -16,6 +16,21 @@ def check_valid_input(user_input, valid_answers, common_alternatives):
         return True, corrected_input
     return False, user_input
 
+def find_indices_sublist(main_list, sublist):
+    """Find indices of each unique item in the sublist within the main list."""
+    indices_list = []
+    for item in sublist:
+        try:
+            index = main_list.index(item)
+            indices_list.append(index)
+        except ValueError:
+            indices_list.append(None)  # Append None if the item is not found
+    return indices_list
+
+# Function to convert 0 to 1 based indices
+def convert_to_1_based_indices(indices_list):
+    return [index + 1 if index is not None else None for index in indices_list]
+
 def get_filters():
     """
     Asks user to specify a city, month, and day to analyze.
@@ -190,13 +205,37 @@ def load_data(city, month, day):
 
     Args:
         (str) city - name of the city to analyze
-        (str) month - name of the month to filter by, or "all" to apply no month filter
-        (str) day - name of the day of week to filter by, or "all" to apply no day filter
+        (str) month - name of the month(s) to filter by
+        (str) day - name of the day(s) of week to filter by
     Returns:
         df - Pandas DataFrame containing city data filtered by month and day
     """
+    # load data file into a dataframe
+    df = pd.read_csv(CITY_DATA[city])
 
+    # convert the Start Time column to datetime
+    df['Start Time'] = pd.to_datetime(df['Start Time'])
 
+    # extract month and day of week from Start Time to create new columns
+    df['month'] = df['Start Time'].dt.month
+    df['day_of_week'] = df['Start Time'].dt.weekday
+
+    ## extract hour from the Start Time column to create an hour column
+    df['hour'] = df['Start Time'].dt.hour
+
+    # use the index of the months list to get the corresponding int
+    months = ['january', 'february', 'march', 'april', 'may', 'june']
+    month = convert_to_1_based_indices(find_indices_sublist(months,month))
+ 
+    # filter by month to create the new dataframe
+    df = df[df['month'].isin(month)]
+
+    # filter by day of week if applicable
+    days = ["monday","tueday","wednesday","thursday","friday","saturday","sunday"]
+    day = convert_to_1_based_indices(find_indices_sublist(days,day))
+    # filter by day of week to create the new dataframe
+    df = df[df['day_of_week'].isin(day)]
+    
     return df
 
 
@@ -213,7 +252,8 @@ def time_stats(df):
 
 
     # display the most common start hour
-
+    ## find the most popular hour
+    popular_hour = df['hour'].mode()[0]
 
     print("\nThis took %s seconds." % (time.time() - start_time))
     print('-'*40)
@@ -276,7 +316,8 @@ def user_stats(df):
 def main():
     while True:
         city, month, day = get_filters()
-#        df = load_data(city, month, day)
+        df = load_data(city, month, day)
+        print(df)
         #time_stats(df)
         #station_stats(df)
         #trip_duration_stats(df)
