@@ -52,10 +52,10 @@ def translate_month_index_name(month_index):
     
 # Translate day of week index to dow name
 def translate_dow_index_name(dow_index):
-    if 1 <= dow_index <= 7:
+    if 0 <= dow_index <= 7:
         # Create a Timestamp for the first of the month
         first_monday = pd.Timestamp("2017-01-02")
-        date_offset = first_monday + pd.Timedelta(days=dow_index - 1)
+        date_offset = first_monday + pd.Timedelta(days=dow_index)
         day_name = date_offset.strftime('%A')  # get day name
         return day_name
     
@@ -248,6 +248,7 @@ def load_data(city, month, day):
     """
     # load data file into a dataframe
     df = pd.read_csv(CITY_DATA[city])
+    print(df.shape)
 
     #view raw data
     view_raw_df = input(f"\nWould you like to see the raw data from {city.title()} (Yes or No):\n").lower().strip()
@@ -260,6 +261,7 @@ def load_data(city, month, day):
     # extract month and day of week from Start Time to create new columns
     df['month'] = df['Start Time'].dt.month
     df['day_of_week'] = df['Start Time'].dt.weekday
+    print(df['day_of_week'].value_counts())
 
     ## extract hour from the Start Time column to create an hour column
     df['hour'] = df['Start Time'].dt.hour
@@ -270,13 +272,14 @@ def load_data(city, month, day):
  
     # filter by month to create the new dataframe
     df = df[df['month'].isin(month)]
-
+    print(df.shape)
     # filter by day of week if applicable
     days = ["monday","tuesday","wednesday","thursday","friday","saturday","sunday"]
-    day = convert_to_1_based_indices(find_indices_sublist(days,day))
+    day = find_indices_sublist(days,day)
     # filter by day of week to create the new dataframe
     df = df[df['day_of_week'].isin(day)]
-
+    print(df['day_of_week'].value_counts())
+    print(df.shape)
     #view filtered data
     view_filtered_df = input(f"\nWould you like to see the filtered data from {city.title()} (Yes or No):\n").lower().strip()
     if(view_filtered_df in ['yes', 'y']):
@@ -314,13 +317,17 @@ def station_stats(df):
     start_time = time.time()
 
     # display most commonly used start station
-
+    start_station_cts = df['Start Station'].value_counts()
+    print(f"\nMost common start station: {start_station_cts.idxmax()}\nNumbers of Starts: {start_station_cts.iloc[0]}\n")
 
     # display most commonly used end station
-
+    end_station_cts = df['End Station'].value_counts()
+    print(f"\nMost common stop station: {end_station_cts.idxmax()}\nNumbers of Ends: {end_station_cts.iloc[0]}\n")
 
     # display most frequent combination of start station and end station trip
-
+    df['Route'] = df['Start Station'] + ' : ' + df['End Station']
+    route_cts = df['Route'].value_counts()
+    print(f"\nMost common route: {route_cts.idxmax()}\nNumbers of trips on route: {route_cts.iloc[0]}\n")
 
     print("\nThis took %s seconds." % (time.time() - start_time))
     print('-'*40)
@@ -333,10 +340,16 @@ def trip_duration_stats(df):
     start_time = time.time()
 
     # display total travel time
-
+    total_days = df['Trip Duration'].sum() // (60 * 60 * 24)
+    remaining_seconds_less_days = df['Trip Duration'].sum() % (60 * 60 *24)
+    remaining_hours =  remaining_seconds_less_days // (60 * 60) 
+    remaining_seconds_less_hours = remaining_seconds_less_days % (60 * 60)
+    remaining_mins = remaining_seconds_less_hours // 60
+    remaining_seconds = remaining_seconds_less_hours % 60
+    print(f"Total travel time: {total_days} day(s), {remaining_hours} hour(s), {remaining_mins} minute(s), and {remaining_seconds} second(s)")
 
     # display mean travel time
-
+    print(f"Mean travel time: {df['Trip Duration'].mean() // 60} minute(s) and {round(df['Trip Duration'].mean() % 60)} second(s)")
 
     print("\nThis took %s seconds." % (time.time() - start_time))
     print('-'*40)
@@ -349,7 +362,8 @@ def user_stats(df):
     start_time = time.time()
 
     # Display counts of user types
-
+    user_types_cts = df['User Type'].value_counts()
+    print(f"\n{user_types_cts}\n")
 
     # Display counts of gender
 
@@ -366,9 +380,9 @@ def main():
         city, month, day = get_filters()
         df = load_data(city, month, day)
         time_stats(df)
-        #station_stats(df)
-        #trip_duration_stats(df)
-        #user_stats(df)
+        station_stats(df)
+        trip_duration_stats(df)
+        user_stats(df)
 
         restart = input('\nWould you like to restart? Enter yes or no.\n')
         if restart.lower() != 'yes':
