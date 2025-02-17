@@ -12,7 +12,7 @@ def check_valid_input(user_input, valid_answers, common_alternatives):
     #check if user input is one of the common alternative or misspelled names
     if user_input.lower() in common_alternatives:
         corrected_input = common_alternatives[user_input.lower()]
-        print(f"We assume you mean {corrected_input}")
+        print(f"We assume you mean {corrected_input.title()}")
         return True, corrected_input
     return False, user_input
 
@@ -58,7 +58,10 @@ def get_filters():
         if not is_valid_city:
             print("Please input the name one of these cities (Chicago, New York City, or Washington).")
         else:
+            city = corrected_city
             print("Thank you!")
+            
+    print(f"You selected: {city.title()}")
     # get user input for month (all, january, february, ... , june)
     user_month = "" #initialize variables
     valid_month = ["january","february","march","april","may","june"]
@@ -100,17 +103,85 @@ def get_filters():
         if not is_valid_month:
             print("Please pick from these months? (January, February, March, April, May, or June).")
         else:
-            selected_month = month.append(corrected_month)
-            print("Thank you! Would you like to select another month")
+            selected_month.append(corrected_month)
+            print("Thank you! Would you like to select another month?")
     if selected_month:
         month = selected_month
+    print(f"You selected: {" ".join(month).title()}")
 
     # get user input for day of week (all, monday, tuesday, ... sunday)
-
+    day = ["monday","tueday","wednesday","thursday","friday","saturday","sunday"]
+    user_day = ""
+    selected_day = []
+    valid_day = ["monday","tueday","wednesday","thursday","friday","saturday","sunday"]
+    common_day_alternatives = {
+        "monady": "monday",
+        "mondy": "monday",
+        "munday": "monday",
+        "monay": "monday",
+        "mon": "monday",
+        "mo": "monday",
+        "m": "monday",
+        "tusday": "tuesday",
+        "tuseday": "tuesday",
+        "tuesady": "tuesday",
+        "tuesdy": "tuesday",
+        "tues": "tuesday",
+        "tu": "tuesday",
+        "wensday": "wednesday",
+        "wedensday": "wednesday",
+        "wednsday": "wednesday",
+        "wendsday": "wednesday",
+        "wed": "wednesday",
+        "we": "wednesday",
+        "w": "wednesday",
+        "thrusday": "thursday",
+        "thurday": "thursday",
+        "thursady": "thursday",
+        "thurdsay": "thursday",
+        "thurs": "thursday",
+        "thur": "thursday",
+        "thu": "thursday",
+        "th": "thursday",
+        "firday": "friday",
+        "fridy": "friday",
+        "firady": "friday",
+        "fryday": "friday",
+        "fri": "friday",
+        "fr": "friday",
+        "saterday": "saturday",
+        "satuday": "saturday",
+        "satrday": "saturday",
+        "saturdy": "saturday",
+        "sat": "saturday",
+        "sa": "saturday",
+        "sundy": "sunday",
+        "sundey": "sunday",
+        "sunady": "sunday",
+        "sundday": "sunday",
+        "sund": "sunday",
+        "sun": "sunday",
+        "su": "sunday"
+    }
+    print("You may choose to narrow the data down to a day or days of the week")
+    print("Not selecting any day will default to using data across all days of the week")
+    while True:
+        user_day = input("Type a day and hit enter (Monday, Tuesday, Wednesday, Thursday, Friday,Saturday, or Sunday). Type 'done' to finish)").lower().strip()
+        if user_day == 'done':
+            break
+        is_valid_day, corrected_day = check_valid_input(user_day, valid_day, common_day_alternatives)
+        if not is_valid_day:
+            print("Please pick from these days? (Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, or Sunday).")
+        else:
+            selected_day.append(corrected_day)
+            print("Thank you! Would you like to select another day?")
+    if selected_day:
+        day = selected_day
+    print(f"You selected: {" ".join(day).title()}")
 
     print('-'*40)
- #   return city, month, day
-    return city, month
+    return city, month, day
+
 
 
 def load_data(city, month, day):
@@ -204,8 +275,7 @@ def user_stats(df):
 
 def main():
     while True:
-#        city, month, day = get_filters()
-        city, month = get_filters() #tmp
+        city, month, day = get_filters()
 #        df = load_data(city, month, day)
         #time_stats(df)
         #station_stats(df)
