@@ -7,6 +7,7 @@ CITY_DATA = { 'chicago': 'chicago.csv',
               'washington': 'washington.csv' }
 
 def check_valid_input(user_input, valid_answers, common_alternatives):
+    """Checks if inputs are valid and coverts to alternatives if neccessary"""
     if user_input.lower() in valid_answers:
         return True, user_input
     #check if user input is one of the common alternative or misspelled names
@@ -29,10 +30,12 @@ def find_indices_sublist(main_list, sublist):
 
 # Function to convert 0 to 1 based indices
 def convert_to_1_based_indices(indices_list):
+    """Moves each value of list of integers up by 1"""
     return [index + 1 if index is not None else None for index in indices_list]
 
 # Function to print data 5 rows at a time
 def print_dataframe_chunks(df,chunk_size=5):
+    """Prints out data five rows at a time"""
     for start in range(0, len(df), chunk_size):
         end = start + chunk_size
         prnt_chunk = df.iloc[start:end]
@@ -44,6 +47,7 @@ def print_dataframe_chunks(df,chunk_size=5):
 
 # Translate month index to month name
 def translate_month_index_name(month_index):
+    """Formats index as month name"""
     if 1 <= month_index <= 12:
         # Create a Timestamp for first monday of the year
         timestamp = pd.Timestamp(year=2017, month=month_index, day=1)
@@ -52,6 +56,7 @@ def translate_month_index_name(month_index):
     
 # Translate day of week index to dow name
 def translate_dow_index_name(dow_index):
+    """Formats index as name of the day of the week"""
     if 0 <= dow_index <= 7:
         # Create a Timestamp for the first of the month
         first_monday = pd.Timestamp("2017-01-02")
@@ -61,6 +66,7 @@ def translate_dow_index_name(dow_index):
     
 # Translate 24 hour index to 12 hour time
 def translate_24hr_index_to_12hr_time(hour_index):
+    """Formats hour index into 12 hour time with AM/PM marker"""
     if 0 <= hour_index <= 23:
         # Create timestamp that contains the hour being indexed
         timestamp = pd.Timestamp.today().replace(hour=hour_index, minute=0, second=0, microsecond=0)
@@ -73,8 +79,8 @@ def get_filters():
 
     Returns:
         (str) city - name of the city to analyze
-        (str) month - name of the month to filter by, or "all" to apply no month filter
-        (str) day - name of the day of week to filter by, or "all" to apply no day filter
+        (str) month - name of the month to filter by
+        (str) day - name of the day of week to filter by
     """
     print('Hello! Let\'s explore some US bikeshare data!')
     # get user input for city (chicago, new york city, washington). HINT: Use a while loop to handle invalid inputs
