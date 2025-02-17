@@ -42,6 +42,31 @@ def print_dataframe_chunks(df,chunk_size=5):
             print("Exiting")
             break
 
+# Translate month index to month name
+def translate_month_index_name(month_index):
+    if 1 <= month_index <= 12:
+        # Create a Timestamp for first monday of the year
+        timestamp = pd.Timestamp(year=2017, month=month_index, day=1)
+        month_name = timestamp.strftime('%B')  # get month name
+        return month_name
+    
+# Translate day of week index to dow name
+def translate_dow_index_name(dow_index):
+    if 1 <= dow_index <= 7:
+        # Create a Timestamp for the first of the month
+        first_monday = pd.Timestamp("2017-01-02")
+        date_offset = first_monday + pd.Timedelta(days=dow_index - 1)
+        day_name = date_offset.strftime('%A')  # get day name
+        return day_name
+    
+# Translate 24 hour index to 12 hour time
+def translate_24hr_index_to_12hr_time(hour_index):
+    if 0 <= hour_index <= 23:
+        # Create timestamp that contains the hour being indexed
+        timestamp = pd.Timestamp.today().replace(hour=hour_index, minute=0, second=0, microsecond=0)
+        time_12hr = timestamp.strftime('%I:%M %p')
+        return time_12hr
+
 def get_filters():
     """
     Asks user to specify a city, month, and day to analyze.
@@ -136,10 +161,10 @@ def get_filters():
     print(f"You selected: {" ".join(month).title()}")
 
     # get user input for day of week (all, monday, tuesday, ... sunday)
-    day = ["monday","tueday","wednesday","thursday","friday","saturday","sunday"]
+    day = ["monday","tuesday","wednesday","thursday","friday","saturday","sunday"]
     user_day = ""
     selected_day = []
-    valid_day = ["monday","tueday","wednesday","thursday","friday","saturday","sunday"]
+    valid_day = ["monday","tuesday","wednesday","thursday","friday","saturday","sunday"]
     common_day_alternatives = {
         "monady": "monday",
         "mondy": "monday",
@@ -225,7 +250,7 @@ def load_data(city, month, day):
     df = pd.read_csv(CITY_DATA[city])
 
     #view raw data
-    view_raw_df = input(f"\nWould you like to see the raw data from {city} (Yes or No):\n").lower().strip()
+    view_raw_df = input(f"\nWould you like to see the raw data from {city.title()} (Yes or No):\n").lower().strip()
     if(view_raw_df in ['yes', 'y']):
         print_dataframe_chunks(df)
 
@@ -247,13 +272,13 @@ def load_data(city, month, day):
     df = df[df['month'].isin(month)]
 
     # filter by day of week if applicable
-    days = ["monday","tueday","wednesday","thursday","friday","saturday","sunday"]
+    days = ["monday","tuesday","wednesday","thursday","friday","saturday","sunday"]
     day = convert_to_1_based_indices(find_indices_sublist(days,day))
     # filter by day of week to create the new dataframe
     df = df[df['day_of_week'].isin(day)]
 
     #view filtered data
-    view_filtered_df = input(f"\nWould you like to see the filtered data from {city} (Yes or No):\n").lower().strip()
+    view_filtered_df = input(f"\nWould you like to see the filtered data from {city.title()} (Yes or No):\n").lower().strip()
     if(view_filtered_df in ['yes', 'y']):
         print_dataframe_chunks(df)
     return df
@@ -266,14 +291,17 @@ def time_stats(df):
     start_time = time.time()
 
     # display the most common month
-
+    popular_month = df['month'].mode()[0]
+    print(f"Most common month: {translate_month_index_name(popular_month)}")
 
     # display the most common day of week
-
+    popular_dow = df['day_of_week'].mode()[0]
+    print(f"Most common day of the week: {translate_dow_index_name(popular_dow)}")
 
     # display the most common start hour
     ## find the most popular hour
     popular_hour = df['hour'].mode()[0]
+    print(f"Most common hour: {translate_24hr_index_to_12hr_time(popular_hour)}")
 
     print("\nThis took %s seconds." % (time.time() - start_time))
     print('-'*40)
@@ -337,8 +365,7 @@ def main():
     while True:
         city, month, day = get_filters()
         df = load_data(city, month, day)
-        print(df)
-        #time_stats(df)
+        time_stats(df)
         #station_stats(df)
         #trip_duration_stats(df)
         #user_stats(df)
