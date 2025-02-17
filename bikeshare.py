@@ -248,7 +248,7 @@ def load_data(city, month, day):
     """
     # load data file into a dataframe
     df = pd.read_csv(CITY_DATA[city])
-    print(df.shape)
+
 
     #view raw data
     view_raw_df = input(f"\nWould you like to see the raw data from {city.title()} (Yes or No):\n").lower().strip()
@@ -258,10 +258,10 @@ def load_data(city, month, day):
     # convert the Start Time column to datetime
     df['Start Time'] = pd.to_datetime(df['Start Time'])
 
-    # extract month and day of week from Start Time to create new columns
+    # extract year, month, and day of week from Start Time to create new columns
+    df['year'] = df['Start Time'].dt.year
     df['month'] = df['Start Time'].dt.month
     df['day_of_week'] = df['Start Time'].dt.weekday
-    print(df['day_of_week'].value_counts())
 
     ## extract hour from the Start Time column to create an hour column
     df['hour'] = df['Start Time'].dt.hour
@@ -272,14 +272,13 @@ def load_data(city, month, day):
  
     # filter by month to create the new dataframe
     df = df[df['month'].isin(month)]
-    print(df.shape)
+
     # filter by day of week if applicable
     days = ["monday","tuesday","wednesday","thursday","friday","saturday","sunday"]
     day = find_indices_sublist(days,day)
     # filter by day of week to create the new dataframe
     df = df[df['day_of_week'].isin(day)]
-    print(df['day_of_week'].value_counts())
-    print(df.shape)
+
     #view filtered data
     view_filtered_df = input(f"\nWould you like to see the filtered data from {city.title()} (Yes or No):\n").lower().strip()
     if(view_filtered_df in ['yes', 'y']):
@@ -317,16 +316,16 @@ def station_stats(df):
     start_time = time.time()
 
     # display most commonly used start station
-    start_station_cts = df['Start Station'].value_counts()
+    start_station_cts = df['Start Station'].value_counts(dropna=False)
     print(f"\nMost common start station: {start_station_cts.idxmax()}\nNumbers of Starts: {start_station_cts.iloc[0]}\n")
 
     # display most commonly used end station
-    end_station_cts = df['End Station'].value_counts()
+    end_station_cts = df['End Station'].value_counts(dropna=False)
     print(f"\nMost common stop station: {end_station_cts.idxmax()}\nNumbers of Ends: {end_station_cts.iloc[0]}\n")
 
     # display most frequent combination of start station and end station trip
     df['Route'] = df['Start Station'] + ' : ' + df['End Station']
-    route_cts = df['Route'].value_counts()
+    route_cts = df['Route'].value_counts(dropna=False)
     print(f"\nMost common route: {route_cts.idxmax()}\nNumbers of trips on route: {route_cts.iloc[0]}\n")
 
     print("\nThis took %s seconds." % (time.time() - start_time))
@@ -355,22 +354,41 @@ def trip_duration_stats(df):
     print('-'*40)
 
 
-def user_stats(df):
+def user_stats(df, city):
     """Displays statistics on bikeshare users."""
 
     print('\nCalculating User Stats...\n')
     start_time = time.time()
 
     # Display counts of user types
-    user_types_cts = df['User Type'].value_counts()
-    print(f"\n{user_types_cts}\n")
+    user_types_cts = df['User Type'].value_counts(dropna=False)
+    user_types_cts = user_types_cts.rename({np.nan: 'Unknown'})
+    print("\nUser Types Counts")
+    for user_type, utct in user_types_cts.items():
+        print(f"{user_type}: {utct}\n")
 
     # Display counts of gender
+    if(city) in ["new york city", "chicago"]:
+        gender_cts = df['Gender'].value_counts(dropna=False)
+        gender_cts = gender_cts.rename({np.nan: 'Unknown'})
+        print("\nGender Counts")
+        for gender, gnct in gender_cts.items():
+            print(f"{gender}: {gnct}\n")
+    else:
+        print(f"Gender data is not available for {city.title()}")
 
 
     # Display earliest, most recent, and most common year of birth
-
-
+    if(city) in ["new york city", "chicago"]:
+        print(f"\nRider age extremes\nBeware only {df['Birth Year'].notna().sum()} of the {df.shape[0]} riders reported a Birth Year\n")
+        max_yob = pd.to_numeric(df['Birth Year'], errors='coerce').astype('Int64').min()
+        min_yob = pd.to_numeric(df['Birth Year'], errors='coerce').astype('Int64').max()
+        mode_yob = pd.to_numeric(df['Birth Year'], errors='coerce').astype('Int64').mode().iloc[0]
+        print(f"The older rider(s) was born in: {max_yob}")
+        print(f"The youngest rider(s) was born in: {min_yob}")
+        print(f"The most common year of birth was: {mode_yob}")
+    else:
+        print(f"Birth year data is not available for {city.title()}")
     print("\nThis took %s seconds." % (time.time() - start_time))
     print('-'*40)
 
@@ -382,7 +400,7 @@ def main():
         time_stats(df)
         station_stats(df)
         trip_duration_stats(df)
-        user_stats(df)
+        user_stats(df, city)
 
         restart = input('\nWould you like to restart? Enter yes or no.\n')
         if restart.lower() != 'yes':
