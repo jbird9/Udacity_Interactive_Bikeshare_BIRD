@@ -28,10 +28,10 @@ def get_filters():
     print('Hello! Let\'s explore some US bikeshare data!')
     # get user input for city (chicago, new york city, washington). HINT: Use a while loop to handle invalid inputs
     
-    user_input = "" #initialize variables
+    user_city = ""
     city = ""
-    valid_answers = ["chicago","new york city","washington"]
-    common_alternatives = {
+    valid_city = ["chicago","new york city","washington"]
+    common_city_alternatives = {
         "chitown": "chicago",
         "new york": "new york city",
         "nyc": "new york city",
@@ -50,24 +50,67 @@ def get_filters():
         "washngton": "washington",
         "wahsington": "washington"
     }
-    is_valid = False
-    while not is_valid:
+    is_valid_city = False
+    while not is_valid_city:
         #have the user input is one of the cities for which we have data
-        user_input = input("Which city's data would you like to explore (Chicago, New York City, or Washington))").lower().strip()
-        is_valid, corrected_input = check_valid_input(user_input, valid_answers, common_alternatives)
-        if not is_valid:
+        user_city = input("Which city's data would you like to explore (Chicago, New York City, or Washington))").lower().strip()
+        is_valid_city, corrected_city = check_valid_input(user_city, valid_city, common_city_alternatives)
+        if not is_valid_city:
             print("Please input the name one of these cities (Chicago, New York City, or Washington).")
         else:
             print("Thank you!")
     # get user input for month (all, january, february, ... , june)
-
+    user_month = "" #initialize variables
+    valid_month = ["january","february","march","april","may","june"]
+    common_month_alternatives = {
+        "janury": "january",
+        "januray": "january",
+        "janaury": "january",
+        "janauary": "january",
+        "jan": "january",
+        "feburary": "february",
+        "febuary": "february",
+        "febrary": "february",
+        "februray": "february",
+        "febraury": "february",
+        "feb": "february",
+        "marh": "march",
+        "mrach": "march",
+        "mach": "march",
+        "mar": "march",
+        "aprl": "april",
+        "apirl": "april",
+        "aprile": "april",
+        "apr": "april",
+        "mai": "may",
+        "mey": "may",
+        "jue": "june",
+        "jun": "june",
+        "juin": "mune"
+    }
+    month = ["january","february","march","april","may","june"]
+    selected_month = []
+    print("You may choose to narrow the data down to a month or months")
+    print("Not selecting any month will default to using data across all months")
+    while True:
+        user_month = input("Type a month and hit enter (January, February, March, April, May, or June). Type 'done' to finish)").lower().strip()
+        if user_month == 'done':
+            break
+        is_valid_month, corrected_month = check_valid_input(user_month, valid_month, common_month_alternatives)
+        if not is_valid_month:
+            print("Please pick from these months? (January, February, March, April, May, or June).")
+        else:
+            selected_month = month.append(corrected_month)
+            print("Thank you! Would you like to select another month")
+    if selected_month:
+        month = selected_month
 
     # get user input for day of week (all, monday, tuesday, ... sunday)
 
 
     print('-'*40)
  #   return city, month, day
-    return city
+    return city, month
 
 
 def load_data(city, month, day):
@@ -162,7 +205,7 @@ def user_stats(df):
 def main():
     while True:
 #        city, month, day = get_filters()
-        city = get_filters() #tmp
+        city, month = get_filters() #tmp
 #        df = load_data(city, month, day)
         #time_stats(df)
         #station_stats(df)
