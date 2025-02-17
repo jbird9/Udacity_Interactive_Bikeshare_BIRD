@@ -40,8 +40,8 @@ def print_dataframe_chunks(df,chunk_size=5):
         end = start + chunk_size
         prnt_chunk = df.iloc[start:end]
         print(prnt_chunk)
-        user_input = input("\nPress Enter to continue or type exit:\n").lower().strip()
-        if user_input == 'exit':
+        user_input = input("\nPress Enter to continue or type 'no' to exit:\n").lower().strip()
+        if user_input in ['no','n']:
             print("Exiting")
             break
 
