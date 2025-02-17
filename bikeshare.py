@@ -31,6 +31,17 @@ def find_indices_sublist(main_list, sublist):
 def convert_to_1_based_indices(indices_list):
     return [index + 1 if index is not None else None for index in indices_list]
 
+# Function to print data 5 rows at a time
+def print_dataframe_chunks(df,chunk_size=5):
+    for start in range(0, len(df), chunk_size):
+        end = start + chunk_size
+        prnt_chunk = df.iloc[start:end]
+        print(prnt_chunk)
+        user_input = input("\nPress Enter to continue or type exit:\n").lower().strip()
+        if user_input == 'exit':
+            print("Exiting")
+            break
+
 def get_filters():
     """
     Asks user to specify a city, month, and day to analyze.
@@ -68,10 +79,10 @@ def get_filters():
     is_valid_city = False
     while not is_valid_city:
         #have the user input is one of the cities for which we have data
-        user_city = input("Which city's data would you like to explore (Chicago, New York City, or Washington))").lower().strip()
+        user_city = input("\nWhich city's data would you like to explore (Chicago, New York City, or Washington)\n").lower().strip()
         is_valid_city, corrected_city = check_valid_input(user_city, valid_city, common_city_alternatives)
         if not is_valid_city:
-            print("Please input the name one of these cities (Chicago, New York City, or Washington).")
+            print("\nPlease input the name one of these cities (Chicago, New York City, or Washington).\n")
         else:
             city = corrected_city
             print("Thank you!")
@@ -111,15 +122,15 @@ def get_filters():
     print("You may choose to narrow the data down to a month or months")
     print("Not selecting any month will default to using data across all months")
     while True:
-        user_month = input("Type a month and hit enter (January, February, March, April, May, or June). Type 'done' to finish)").lower().strip()
+        user_month = input("\nType a month and hit enter\n(January, February, March, April, May, or June).\nType 'done' to finish selecting month(s).)\n").lower().strip()
         if user_month == 'done':
             break
         is_valid_month, corrected_month = check_valid_input(user_month, valid_month, common_month_alternatives)
         if not is_valid_month:
-            print("Please pick from these months? (January, February, March, April, May, or June).")
+            print("\nPlease pick from these months?\n(January, February, March, April, May, or June).\n")
         else:
             selected_month.append(corrected_month)
-            print("Thank you! Would you like to select another month?")
+            print("\nThank you! Would you like to select another month?\n")
     if selected_month:
         month = selected_month
     print(f"You selected: {" ".join(month).title()}")
@@ -181,18 +192,18 @@ def get_filters():
     print("You may choose to narrow the data down to a day or days of the week")
     print("Not selecting any day will default to using data across all days of the week")
     while True:
-        user_day = input("Type a day and hit enter (Monday, Tuesday, Wednesday, Thursday, Friday,Saturday, or Sunday). Type 'done' to finish)").lower().strip()
+        user_day = input("\nType a day and hit enter\n(Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, or Sunday).\nType 'done' to finish selecting day(s))\n").lower().strip()
         if user_day == 'done':
             break
         is_valid_day, corrected_day = check_valid_input(user_day, valid_day, common_day_alternatives)
         if not is_valid_day:
-            print("Please pick from these days? (Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, or Sunday).")
+            print("\nPlease pick from these days?\n(Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, or Sunday).")
         else:
             selected_day.append(corrected_day)
-            print("Thank you! Would you like to select another day?")
+            print("\nThank you! Would you like to select another day?\n")
     if selected_day:
         day = selected_day
-    print(f"You selected: {" ".join(day).title()}")
+    print(f"\nYou selected: {" ".join(day).title()}\n")
 
     print('-'*40)
     return city, month, day
@@ -212,6 +223,11 @@ def load_data(city, month, day):
     """
     # load data file into a dataframe
     df = pd.read_csv(CITY_DATA[city])
+
+    #view raw data
+    view_raw_df = input(f"\nWould you like to see the raw data from {city} (Yes or No):\n").lower().strip()
+    if(view_raw_df in ['yes', 'y']):
+        print_dataframe_chunks(df)
 
     # convert the Start Time column to datetime
     df['Start Time'] = pd.to_datetime(df['Start Time'])
@@ -235,7 +251,11 @@ def load_data(city, month, day):
     day = convert_to_1_based_indices(find_indices_sublist(days,day))
     # filter by day of week to create the new dataframe
     df = df[df['day_of_week'].isin(day)]
-    
+
+    #view filtered data
+    view_filtered_df = input(f"\nWould you like to see the filtered data from {city} (Yes or No):\n").lower().strip()
+    if(view_filtered_df in ['yes', 'y']):
+        print_dataframe_chunks(df)
     return df
 
 
