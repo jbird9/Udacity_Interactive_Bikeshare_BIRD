@@ -164,7 +164,7 @@ def get_filters():
             print("\nThank you! Would you like to select another month?\n")
     if selected_month:
         month = selected_month
-    print(f"You selected: {" ".join(month).title()}")
+    print(f"You selected: {' '.join(month).title()}")
 
     # get user input for day of week (all, monday, tuesday, ... sunday)
     day = ["monday","tuesday","wednesday","thursday","friday","saturday","sunday"]
@@ -234,7 +234,7 @@ def get_filters():
             print("\nThank you! Would you like to select another day?\n")
     if selected_day:
         day = selected_day
-    print(f"\nYou selected: {" ".join(day).title()}\n")
+    print(f"\nYou selected: {' '.join(day).title()}\n")
 
     print('-'*40)
     return city, month, day
@@ -387,9 +387,9 @@ def user_stats(df, city):
     # Display earliest, most recent, and most common year of birth
     if(city) in ["new york city", "chicago"]:
         print(f"\nRider age extremes\nBeware only {df['Birth Year'].notna().sum()} of the {df.shape[0]} riders reported a Birth Year\n")
-        max_yob = pd.to_numeric(df['Birth Year'], errors='coerce').astype('Int64').min()
-        min_yob = pd.to_numeric(df['Birth Year'], errors='coerce').astype('Int64').max()
-        mode_yob = pd.to_numeric(df['Birth Year'], errors='coerce').astype('Int64').mode().iloc[0]
+        max_yob = pd.to_numeric(df['Birth Year'].dropna()).astype('Int64').min()
+        min_yob = pd.to_numeric(df['Birth Year'].dropna()).astype('Int64').max()
+        mode_yob = pd.to_numeric(df['Birth Year'].dropna()).astype('Int64').mode().iloc[0]
         print(f"The older rider(s) was born in: {max_yob}")
         print(f"The youngest rider(s) was born in: {min_yob}")
         print(f"The most common year of birth was: {mode_yob}")
